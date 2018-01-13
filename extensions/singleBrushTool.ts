@@ -16,8 +16,8 @@ export interface BkEv {
   }
 }
 
-export class BrushSelectToolView extends SelectToolView {
-    model: BrushSelectTool
+export class SingleBrushToolView extends SelectToolView {
+    model: SingleBrushTool
 
     protected _original_brush_limits: [[number, number], [number, number]] | null // Limits of the original brush
     protected _brush_action: string | null // Should either be "New", "Extend", "Move"
@@ -236,9 +236,9 @@ export class BrushSelectToolView extends SelectToolView {
 }
 
 
-//export class BrushSelectToolView extends SelectToolView {
+//export class SingleBrushToolView extends SelectToolView {
 //
-//  model: BrushSelectTool
+//  model: SingleBrushTool
 //
 //  protected _base_point: [number, number] | null
 //  protected _current_box_limits: [[number, number],[number,number]] | null
@@ -444,7 +444,7 @@ const DEFAULT_BOX_OVERLAY = () => {
   })
 }
 
-export class BrushSelectTool extends SelectTool {
+export class SingleBrushTool extends SelectTool {
 
   dimensions: Dimensions
   select_every_mousemove: boolean
@@ -464,11 +464,11 @@ export class BrushSelectTool extends SelectTool {
   //@define {source: [p.Instance]}
 }
 
-BrushSelectTool.prototype.type = "BrushSelectTool"
+SingleBrushTool.prototype.type = "SingleBrushTool"
 
-BrushSelectTool.prototype.default_view = BrushSelectToolView
+SingleBrushTool.prototype.default_view = SingleBrushToolView
 
-BrushSelectTool.define({
+SingleBrushTool.define({
   dimensions:             [ p.Dimensions, "both"            ],
   select_every_mousemove: [ p. Bool,    true                ],
   callback:               [ p.Instance                      ],

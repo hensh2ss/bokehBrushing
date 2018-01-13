@@ -27,8 +27,8 @@ DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
 )
 
 
-class BrushSelectTool(Drag):
-    __implementation__ = "brush.ts"
+class SingleBrushTool(Drag):
+    __implementation__ = "singleBrushTool.ts"
     # source = Instance(ColumnDataSource)
     # plot = Instance(figure)
 

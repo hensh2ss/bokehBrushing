@@ -8,10 +8,10 @@ from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure
 from bokeh.io import curdoc
 import numpy as np
-from extensions.brush import BrushSelectTool
+from extensions.brush import SingleBrushTool
 
 def selectionChanged(attrname, old, new):
-    print 'The Selection has changed'
+    print 'The Selection has changed...new: {0}'.format(new)
 
 xdata = np.arange(-180, 180, 0.1)*np.pi / 180.
 ydata = np.sin(xdata)
@@ -21,7 +21,7 @@ source.on_change('selected', selectionChanged)
 
 # plot = figure(x_range=(0,10), y_range=(0,10), tools=[BrushSelectTool(source=source)])
 # plot = figure()
-plot = figure(tools=[BrushSelectTool()], output_backend="webgl")
+plot = figure(tools=[SingleBrushTool()], output_backend="webgl")
 plot.title.text ="Drag to draw on the plot"
 plot.circle('x', 'y', source=source, selection_color='orange')
 
