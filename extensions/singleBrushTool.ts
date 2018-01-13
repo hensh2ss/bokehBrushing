@@ -25,21 +25,36 @@ export class SingleBrushToolView extends SelectToolView {
     protected _extend_parameters: [[boolean,boolean],[boolean,boolean]] | null
     protected _previous_pan_point: [number, number] | null
 
-//    initialize(options: any): void {
-//        super.initialize(options)
-//        console.log("Construting view")
-//
-//    }
+    initialize(options: any): void {
+        super.initialize(options)
+        console.log("Construting view")
+        console.log(this)
+        this.connect(this.plot_view.ui_event_bus.pan, () => this._viewChanged())
+
+    }
+
+    _viewChanged(e): void {
+        console.log("View Pan Changed", this.plot_view.state_changed.sender.initial_range_info)
+//        this._clearBrush()
+    }
+
+    _clearBrush(): void {
+        this._original_brush_limits = null
+        this.model.overlay.update({left:null, right:null, top:null, bottom:null})
+        this._do_select([null,null],[null,null],false, false)
+        this._brush_action = "New"
+    }
 
     _keyup(e): void {
         if (e.key == "Escape") {
             console.log("Escape Key was hit")
-            this._original_brush_limits = null
-            this.model.overlay.update({left:null, right:null, top:null, bottom:null})
-            this._do_select([null,null],[null,null],false, false)
-//            this._brush_action = "New"
+            this._clearBrush()
+        } else if (e.key == "h") {
+            console.log("Printing Help", this)
+        } else {
+            console.log("Key was hit: ",e)
         }
-        console.log("Key was hit: ",e)
+
     }
 
     _click_inside_brush([sx, sy]:[number,number]) {
@@ -96,29 +111,6 @@ export class SingleBrushToolView extends SelectToolView {
 
         }
 
-//            // Continuing an existing brush
-//            const [intended, extend_intended] = this._click_expand_intended([sx,sy],10)
-//            console.log("INtended: ", intended, extend_intended)
-//            if(intended) {
-//                //Extending the original brush
-//                console.log("Extending the original brush")
-//                this._brush_action = "Extend"
-//                this._extend_parameters = extend_intended
-//            } else {
-//                if (this._click_inside_brush([sx, sy])) {
-//                    //Click was inside previous brush so we are going to move the brush
-//                    console.log("Moving Existing Brush")
-//                    this._brush_action = "Move"
-//                } else {
-//                    // Click was outide the previous brush so we are going to start a new brush
-//                    console.log("Starting a new Brush even though old brush exists")
-//                    this._brush_action = "New"
-//                    this._original_brush_limits = [[sx,null],[sy,null]]
-//                }
-//            }
-//        }
-
-//        this._current_brush_limits = [[sx, null],[sy,null]]
         this._previous_pan_point = [sx, sy]
 
     }
@@ -138,8 +130,14 @@ export class SingleBrushToolView extends SelectToolView {
         if (this._brush_action == "New") {
             //Calculating the new range of the new brush
             console.log("Calculating the range of the new brush")
-            this._original_brush_limits[0][1] = sx
-            this._original_brush_limits[1][1] = sy
+            if (this._original_brush_limits == null) {
+
+                this._original_brush_limits = [[this._previous_pan_point[0],sx],
+                                               [this._previous_pan_point[1],sy]]
+            } else {
+                this._original_brush_limits[0][1] = sx
+                this._original_brush_limits[1][1] = sy
+            }
 
         } else if ( this._brush_action == "Extend") {
             console.log("\tExtending the range of the existing brush")
@@ -235,197 +233,6 @@ export class SingleBrushToolView extends SelectToolView {
 
 }
 
-
-//export class SingleBrushToolView extends SelectToolView {
-//
-//  model: SingleBrushTool
-//
-//  protected _base_point: [number, number] | null
-//  protected _current_box_limits: [[number, number],[number,number]] | null
-//  protected _brush_on=false
-//  protected _move_brush=false
-//
-//  _click_inside_brush([sx, sy]:[number, number]) {
-//    if (this._brush_on) {
-//        console.log('Brush is on...checking if click is inside')
-//        console.log(self._current_box_limits)
-//        const [xlim, ylim] = self._current_box_limits
-//        const xcondition = sx >= xlim[0] && sx <= xlim[1]
-//        const ycondition = sy >= ylim[0] && sy <= ylim[1]
-//        console.log("Inside Brush X, Y: ",xcondition,ycondition)
-//        if (xcondition && ycondition) {
-//            console.log("Click is inside Brush")
-//            return true
-//        } else {
-//            console.log("Click is NOT inside Brush")
-//            return false
-//        }
-//
-//    } else {
-//        console.log("Brush is not on....click inside=false")
-//        return false
-//    }
-//  }
-//
-//  _getRegionDimensions([sx, sy]:[number, number]) {
-//
-//    const curpoint: [number, number] = [sx, sy]
-//    const frame = this.plot_model.frame
-//    const dims = this.model.dimensions
-//
-//    const [sxlim, sylim] = this.model._get_dim_limits(this._base_point!, curpoint, frame, dims)
-//    return [sxlim, sylim]
-//  }
-//
-//  _pan_start(e: BkEv): void {
-//    const {sx, sy} = e.bokeh
-//    console.log("Old Base Point: ", self._base_point)
-//    console.log("New Base Point: ", [sx, sy])
-//    this._base_point = [sx, sy]
-//
-//    // Checking to see if the brush is enabled already
-//    if (this._brush_on) {
-//        // A current Brush exists....deciding whether to move or not
-//        console.log("Brush Currently exists")
-//        if (this._click_inside_brush(this._base_point)){
-//            //The Current click is inside the brush therefore we are going to just move brush
-//            console.log("pan_start moving brush")
-//            this._move_brush = true
-//        }else {
-//            //The current click is outside the old brush therefore starting a new brush
-//            this._move_brush = false
-//        }
-//    } else {
-//        // a current brush does not exist...making a new one
-//        this._move_brush = false
-//        this._brush_on = true
-//    }
-//  }
-//
-//  _calc_moved_brush_limits([sx, sy]:[number, number]) {
-//        console.log("Moving old brush")
-//        console.log("Current Point: ",[sx,sy])
-//        console.log("Base Point: ", this._base_point)
-//        console.log("current box limits: ", this._current_box_limits)
-//        const diffx = sx - this._base_point[0]
-//        const diffy = sy - this._base_point[1]
-//        const [xlim,ylim] = self._current_box_limits
-//
-//        console.log("Differences: ",diffx, diffy)
-//        const newXLim = [xlim[0]+diffx,xlim[1]+diffx]
-//        const newYLim = [ylim[0]+diffy,ylim[1]+diffy]
-//
-//        console.log("New Box Dims: ", newXLim, newYLim)
-//
-//        const frame = this.plot_model.frame
-//        const dims = this.model.dimensions
-//
-//        const newp1 = [newXLim[0], newYLim[0]]
-//        const newp2 = [newXLim[1], newYLim[1]]
-//        const [sxlim, sylim] = this.model._get_dim_limits(newp1, newp2, frame, dims)
-//        return [sxlim, sylim]
-//
-//  }
-//
-//  _pan(e: BkEv): void {
-//    const {sx, sy} = e.bokeh
-//    const curpoint: [number, number] = [sx, sy]
-//
-//    console.log("Pan Moving...shift Key event:  ",e.srcEvent.shiftKey)
-//    console.log("Pan Moving...alt Key event:  ",e.srcEvent.altKey)
-//    if (this._move_brush) {
-//        // Simply moving the brush
-//        [sxlim, sylim] = this._calc_moved_brush_limits([sx, sy])
-//
-//        self._current_box_limits = [sxlim, sylim]
-//        this.model.overlay.update({left: sxlim[0], right: sxlim[1], top:sylim[0], bottom: sylim[1]})
-//
-//        // Need to reset the base point for the next move
-//        this._base_point = [sx, sy]
-//
-//        if (this.model.select_every_mousemove) {
-//          const append = e.srcEvent.shiftKey || false
-//          console.log("Shift key: ",e.srcEvent.shiftKey, e.srcEvent.altKey)
-//          this._do_select(sxlim, sylim, false, append)
-//        }
-//
-//    } else {
-//        // Creating a new brush
-//        const [sxlim, sylim] = this._getRegionDimensions(curpoint)
-//        self._current_box_limits = [sxlim, sylim]
-//        this.model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[0], bottom: sylim[1]})
-//
-//        if (this.model.select_every_mousemove) {
-//          const append = e.srcEvent.shiftKey || false
-//          this._do_select(sxlim, sylim, false, append)
-//        }
-//    }
-//
-//  }
-//
-//  _pan_end(e: BkEv): void {
-//    const {sx, sy} = e.bokeh
-//    const curpoint: [number, number] = [sx, sy]
-//
-//    if (this._move_brush) {
-//        // Ending the moving of the brush
-//        [sxlim, sylim] = this._calc_moved_brush_limits([sx,sy])
-//        self._current_box_limits = [sxlim, sylim]
-//        this.model.overlay.update({left: sxlim[0], right: sxlim[1], top:sylim[0], bottom: sylim[1]})
-//
-//
-//    } else {
-//        const frame = this.plot_model.frame
-//        const dims = this.model.dimensions
-//
-//        // Getting the Bounding Box Limits for the BoxAnnotation
-//        const [sxlim, sylim] = this.model._get_dim_limits(this._base_point!, curpoint, frame, dims)
-//        this.model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[0], bottom: sylim[1]})
-//
-//        this._current_box_limits = [sxlim, sylim]
-//
-//    }
-//
-//    const append = e.srcEvent.shiftKey || false
-//    this._do_select(sxlim, sylim, true, append)
-//
-//
-////    this.model.overlay.update({left: null, right: null, top: null, bottom: null})
-//
-//    this._base_point = null
-//
-//    this.plot_view.push_state('box_select', {selection: this.plot_view.get_selection()})
-//
-//    console.log("Ending Point: ",[sx,sy])
-//    console.log("sxlim, sylim", [sxlim, sylim])
-//  }
-//
-//  _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, append: boolean = false): void {
-//    const geometry: RectGeometry = {
-//      type: 'rect',
-//      sx0: sx0,
-//      sx1: sx1,
-//      sy0: sy0,
-//      sy1: sy1,
-//    }
-//    this._select(geometry, final, append)
-//  }
-//
-//  _emit_callback(geometry: RectGeometry): void {
-//    const r = this.computed_renderers[0]
-//    const frame = this.plot_model.frame
-//
-//    const xscale = frame.xscales[r.x_range_name]
-//    const yscale = frame.yscales[r.y_range_name]
-//
-//    const {sx0, sx1, sy0, sy1} = geometry
-//    const [x0, x1] = xscale.r_invert(sx0, sx1)
-//    const [y0, y1] = yscale.r_invert(sy0, sy1)
-//
-//    const g = extend({x0, y0, x1, y1}, geometry)
-//    this.model.callback.execute(this.model, {geometry: g})
-//  }
-//}
 
 const DEFAULT_BOX_OVERLAY = () => {
   return new BoxAnnotation({
